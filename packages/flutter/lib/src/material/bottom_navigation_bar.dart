@@ -179,6 +179,7 @@ class BottomNavigationBar extends StatefulWidget {
     this.iconSize = 24.0,
     Color selectedItemColor,
     this.unselectedItemColor,
+    this.splashColor,
     this.selectedIconTheme,
     this.unselectedIconTheme,
     this.selectedFontSize = 14.0,
@@ -263,6 +264,12 @@ class BottomNavigationBar extends StatefulWidget {
   /// If null then the [TextTheme.caption]'s color is used.
   final Color unselectedItemColor;
 
+  /// The color of the ripple effect [BottomNavigationBarItem.icon] and
+  /// [BottomNavigationBarItem.label].
+  ///
+  /// If null then the [ThemeData.primaryColor] is used.
+  final Color splashColor;
+  
   /// The size, opacity, and color of the icon in the currently selected
   /// [BottomNavigationBarItem.icon].
   ///
@@ -448,43 +455,58 @@ class _BottomNavigationTile extends StatelessWidget {
       child: Semantics(
         container: true,
         selected: selected,
-        child: Stack(
-          children: <Widget>[
-            InkResponse(
-              onTap: onTap,
-              child: Padding(
-                padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    _TileIcon(
-                      colorTween: colorTween,
-                      animation: animation,
-                      iconSize: iconSize,
-                      selected: selected,
-                      item: item,
-                      selectedIconTheme: selectedIconTheme ?? bottomTheme.selectedIconTheme,
-                      unselectedIconTheme: unselectedIconTheme ?? bottomTheme.unselectedIconTheme,
-                    ),
-                    _Label(
-                      colorTween: colorTween,
-                      animation: animation,
-                      item: item,
-                      selectedLabelStyle: selectedLabelStyle ?? bottomTheme.selectedLabelStyle,
-                      unselectedLabelStyle: unselectedLabelStyle ?? bottomTheme.unselectedLabelStyle,
-                      showSelectedLabels: showSelectedLabels ?? bottomTheme.showUnselectedLabels,
-                      showUnselectedLabels: showUnselectedLabels ?? bottomTheme.showUnselectedLabels,
-                    ),
-                  ],
+        child: LayoutBuilder(
+          builder: (context, constraints) => Stack(
+            children: <Widget>[
+              InkResponse(
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                splashColor: splashColor,
+                radius: constraints.maxWidth / 1.8, 
+                //value of 2 would have the exact bounds of the Tile, with a value of 1.8 the ripple effect has a slight overflow effect
+                onTap: onTap,
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(top: topPadding, bottom: bottomPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      _TileIcon(
+                        colorTween: colorTween,
+                        animation: animation,
+                        iconSize: iconSize,
+                        selected: selected,
+                        item: item,
+                        selectedIconTheme:
+                            selectedIconTheme ?? bottomTheme.selectedIconTheme,
+                        unselectedIconTheme: unselectedIconTheme ??
+                            bottomTheme.unselectedIconTheme,
+                      ),
+                      _Label(
+                        colorTween: colorTween,
+                        animation: animation,
+                        item: item,
+                        selectedLabelStyle: selectedLabelStyle ??
+                            bottomTheme.selectedLabelStyle,
+                        unselectedLabelStyle: unselectedLabelStyle ??
+                            bottomTheme.unselectedLabelStyle,
+                        showSelectedLabels: showSelectedLabels ??
+                            bottomTheme.showUnselectedLabels,
+                        showUnselectedLabels: showUnselectedLabels ??
+                            bottomTheme.showUnselectedLabels,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Semantics(
-              label: indexLabel,
-            ),
-          ],
+              Semantics(
+                label: indexLabel,
+              ),
+            ],
+          ),
         ),
       ),
     );
